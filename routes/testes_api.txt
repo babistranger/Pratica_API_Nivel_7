@@ -1,0 +1,26 @@
+Seguem modelos de testes CRUD: 
+
+POST - Criar filme - Request Http
+http://localhost:3009/api/filmes
+body json: 
+{
+    "title": "Matrix",
+    "description": "Um hacker descobre a verdade sobre sua realidade.",
+    "year": 1999,
+    "genres": ["Ação", "Ficção Científica"],
+    "image": "https://exemplo.com/matrix.jpg",
+    "video": "https://exemplo.com/matrix-trailer.mp4"
+  }
+
+GET - Listar dos os filmes
+http://localhost:3009/api/filmes
+
+PUT - Atualizar um filme - Configuração Request
+http://localhost:3009/api/filmes/3
+{
+    "year": 2015,
+    "genres": ["Ficção Científica", "Drama"]
+  }
+
+DELETE - Deletar um filme 
+http://localhost:3009/api/filmes/2
