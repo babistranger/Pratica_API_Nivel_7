@@ -1,0 +1,35 @@
+Projeto para coonstrução de uma aplicação de streaming de filmes.
+
+## Instalação e Execução
+
+### 1️ Clone o repositório
+
+```bash
+git clone https://github.com/seu-usuario/Pratica_API_Nivel_7.git
+cd Pratica_API_Nivel_7
+```
+### 2️ Instale as dependências
+```bash
+yarn install
+```
+### 3️ Configure as variáveis de ambiente
+
+Crie um arquivo `.env` na raiz do projeto:
+
+```env
+PORT=3009
+NODE_ENV=development
+```
+
+### 4️ Inicie o servidor
+
+**Modo desenvolvimento** (com auto-reload):
+```bash
+yarn dev
+```
+
+**Modo produção**:
+```
+yarn start
+```
+O servidor estará rodando em: **http://localhost:3009** 
