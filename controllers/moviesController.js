@@ -96,14 +96,27 @@ const criarFilme = async (req, res) => {
 // PUT - Atualizar filme
 const atualizarFilme = async(req, res) => {
   try {
-  const id = parseInt(req.params.id);
-  const { title, description, year, genres, image, video } = req.body;
-  const filme = await Filme.findById(req.params.id);
+ 
+    const { genres } = req.body;
 
   //Verificando se o filme existe pelo id digitado
-  if (index === -1) {                  
-    return res.status(404).json({ error: 'Filme não encontrado' });    //Erro 404 requisição não encontrada
-  }
+  // Convertendo id para número
+    const id = Number(req.params.id);
+
+    // Verificar se ID é válido
+    if (isNaN(id)) {
+      return res.status(400).json({
+        error: 'ID inválido'
+      });
+    }
+    // Verificar se filme existe
+    const filmeExiste = await Filme.findOne({ id });
+
+    if (!filmeExiste) {
+      return res.status(404).json({
+        error: 'Filme não encontrado'
+      });
+    }
 
   // Validação para genres caso seja enviado
   if (genres && !Array.isArray(genres)) {
@@ -112,48 +125,60 @@ const atualizarFilme = async(req, res) => {
     });
   }
 
-  //Atualizando o array de filmes
-  filmes[index] = {
-    ...filmes[index],
-    ...(title && { title }),
-    ...(description && { description }),
-    ...(year && { year }),
-    ...(genres && { genres }),
-    ...(image && { image }),
-    ...(video && { video })
-  };
+ const filmeAtualizado = await Filme.findOneAndUpdate(
+      { id: Number(req.params.id) }, // filme procurado
+      req.body,                      // novos dados
+      {
+        new: true,                   // retorna atualizado
+        runValidators: true          // valida schema
+      }
+    );
 
-  res.json(filmes[index]);
+ if (!filmeAtualizado) {
+      return res.status(404).json({
+        error: 'Filme não encontrado'
+      });
+    }
+
+   res.json({
+      message: 'Filme atualizado com sucesso',
+      data: filmeAtualizado
+    });
 
   } catch (error) {
+
     res.status(500).json({
       error: 'Erro ao atualizar filme',
       details: error.message
     });
+
   }
 };
 
 // DELETE - Remover filme
 const deletarFilme = async (req, res) => {
   try {
-  const id = parseInt(req.params.id);      //Convertendo string em número
-  const index = filmes.findIndex(f => f.id === id);
+    const filmeRemovido = await Filme.findOneAndDelete({
+      id: Number(req.params.id)
+    });
 
-  if (index === -1) {
-    return res.status(404).json({ error: 'Filme não encontrado' });     //Erro 404 requisição não encontrada
-  }
-
-  const removido = filmes.splice(index, 1);
-  res.json({
-    message: 'Filme removido com sucesso',
-    data: removido[0]
-  });
+    if (!filmeRemovido) {
+      return res.status(404).json({
+        error: 'Filme não encontrado'
+      });
+    }
+    res.json({
+      message: 'Filme removido com sucesso',
+      data: filmeRemovido
+    });
 
   } catch (error) {
+
     res.status(500).json({
       error: 'Erro ao deletar filme',
       details: error.message
     });
+
   }
 };
 
