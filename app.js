@@ -1,6 +1,7 @@
 const express = require('express');       //intancia o express
 const cors = require('cors');             //permite acesso por outro domínio
 const morgan = require('morgan');         //registra todas as requisições recebidas
+require('./data/config');                     //conecta com o banco de dados
 
 const routes = require('./routes/routes_movies');       //inicia o arquivo rotas
 

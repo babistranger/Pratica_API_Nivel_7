@@ -1,6 +1,10 @@
 require('dotenv').config();               //carrega variáveis de ambiente do arquivo .env
 const app = require('./app');
 
+const conectarBanco = require('./data/config');
+
+conectarBanco();
+
 const PORT = process.env.PORT || 3009;     //define a porta pro servidor primeiro pelo arquivo
 
 // Inicializa o servidor

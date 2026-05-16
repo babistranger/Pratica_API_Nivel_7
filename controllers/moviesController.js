@@ -1,4 +1,4 @@
-const filmes = require('../data/databasemovies');
+const Filme = require('../models/Filme.js');
 
 // GET - Health check - verificando se a api está ok
 const HealthCheck = (req, res) => {
@@ -9,27 +9,49 @@ const HealthCheck = (req, res) => {
 };
 
 // GET - Listar todos os filmes
-const listarFilmes = (req, res) => {
+const listarFilmes = async (req, res) => {
+  try {
+  const filmes = await Filme.find();
+  
   res.json({
     total: filmes.length,      //Somar o total de filmes do catálogo
     data: filmes               //Apresentar os dados
   });
+
+  } catch (error) {
+    res.status(500).json({
+      error: 'Erro ao listar filmes',
+      details: error.message
+    });
+  }
 };
 
 // GET - Buscar filme por id
-const buscarFilmePorId = (req, res) => {
+const buscarFilmePorId = async (req, res) => {
+  try {
   const id = parseInt(req.params.id);
-  const filme = filmes.find(f => f.id === id);
+  const filme = await Filme.findById(req.params.id);
+  
 
   if (!filme) {
-    return res.status(404).json({ error: 'Filme não encontrado' }); // Código 404 Erro muito usado - Not Found, requisição não encontrada
+    return res.status(404).json({ 
+      error: 'Filme não encontrado' 
+    }); // Código 404 Erro muito usado - Not Found, requisição não encontrada
   }
 
   res.json(filme);
+
+  } catch (error) {
+    res.status(500).json({
+      error: 'Erro ao buscar filme',
+      details: error.message
+    });
+  }
 };
 
 // POST - Criar novo filme
-const criarFilme = (req, res) => {
+const criarFilme = async (req, res) => {
+  try {
   const { title, description, year, genres, image, video } = req.body;
 
   // Validação dos campos obrigatórios
@@ -46,25 +68,37 @@ const criarFilme = (req, res) => {
     });
   }
 
-  const novoFilme = {
-    id: filmes.length > 0 ? filmes[filmes.length - 1].id + 1 : 1,        //adicionar o id automaticamente
+  const ultimoFilme = await Filme.findOne().sort({ id: -1 });
+  const novoId = ultimoFilme ? ultimoFilme.id + 1 : 1;       //Adicionando id automaticamente 
+
+  const novoFilme = new Filme({
+    id: novoId,
     title,
     description,
     year,
     genres,
     image,
     video
-  };
+    });
 
-  filmes.push(novoFilme);
+  const filmeSalvo = await novoFilme.save();
+
   res.status(201).json(novoFilme);             //Requisição criada código 201
+  
+} catch (error) {
+    res.status(500).json({
+      error: 'Erro ao criar filme',
+      details: error.message
+    });
+  }
 };
 
 // PUT - Atualizar filme
-const atualizarFilme = (req, res) => {
+const atualizarFilme = async(req, res) => {
+  try {
   const id = parseInt(req.params.id);
   const { title, description, year, genres, image, video } = req.body;
-  const index = filmes.findIndex(f => f.id === id);     //Posição do filme no index do array, se não encontrar retorna -1
+  const filme = await Filme.findById(req.params.id);
 
   //Verificando se o filme existe pelo id digitado
   if (index === -1) {                  
@@ -90,10 +124,18 @@ const atualizarFilme = (req, res) => {
   };
 
   res.json(filmes[index]);
+
+  } catch (error) {
+    res.status(500).json({
+      error: 'Erro ao atualizar filme',
+      details: error.message
+    });
+  }
 };
 
 // DELETE - Remover filme
-const deletarFilme = (req, res) => {
+const deletarFilme = async (req, res) => {
+  try {
   const id = parseInt(req.params.id);      //Convertendo string em número
   const index = filmes.findIndex(f => f.id === id);
 
@@ -106,6 +148,13 @@ const deletarFilme = (req, res) => {
     message: 'Filme removido com sucesso',
     data: removido[0]
   });
+
+  } catch (error) {
+    res.status(500).json({
+      error: 'Erro ao deletar filme',
+      details: error.message
+    });
+  }
 };
 
 module.exports = {
